@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Light palette (default) — see nse-tracker.crotich.com's index.css for
+     the sibling site sharing this exact token system. */
+  :root {
+    --color-canvas: 247 248 250;
+    --color-canvas-raised: 255 255 255;
+    --color-canvas-panel: 255 255 255;
+    --color-canvas-border: 227 230 235;
+
+    --color-ink: 18 21 26;
+    --color-ink-muted: 91 100 114;
+    --color-ink-faint: 139 147 161;
+
+    --color-accent: 181 121 30;
+    --color-accent-bright: 240 169 58;
+
+    color-scheme: light;
+  }
+
+  .dark {
+    --color-canvas: 11 13 16;
+    --color-canvas-raised: 18 21 26;
+    --color-canvas-panel: 22 26 32;
+    --color-canvas-border: 36 42 50;
+
+    --color-ink: 245 247 250;
+    --color-ink-muted: 139 147 161;
+    --color-ink-faint: 86 94 107;
+
+    --color-accent: 240 169 58;
+    --color-accent-bright: 255 194 102;
+
+    color-scheme: dark;
+  }
+
+  ::selection {
+    background: rgb(var(--color-accent));
+    color: rgb(var(--color-canvas));
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-canvas-border));
+    border-radius: 999px;
+  }
+}

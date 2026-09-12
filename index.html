@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Runs before first paint so there's no flash of the wrong theme: reads
+         the saved preference (or falls back to OS preference), applies the
+         `dark` class synchronously (the same class ThemeToggle manages
+         later), and sets the mobile browser-chrome color to match. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme')
+          var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
+          if (dark) document.documentElement.classList.add('dark')
+          document.addEventListener('DOMContentLoaded', function () {
+            var meta = document.querySelector('meta[name="theme-color"]')
+            if (meta) meta.setAttribute('content', dark ? '#0B0D10' : '#F7F8FA')
+          })
+        } catch (e) {}
+      })()
+    </script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0B0D10" />
+    <meta
+      name="description"
+      content="Collins Rotich — Loyalty strategy, campaign management, and customer data analytics across East Africa."
+    />
+    <title>Collins Rotich</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://crotich.com/" />
+    <meta property="og:title" content="Collins Rotich" />
+    <meta
+      property="og:description"
+      content="Loyalty strategy, campaign management, and customer data analytics across East Africa."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Collins Rotich" />
+    <meta
+      name="twitter:description"
+      content="Loyalty strategy, campaign management, and customer data analytics across East Africa."
+    />
+  </head>
+  <body class="bg-canvas text-ink font-sans antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

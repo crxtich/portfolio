@@ -11,7 +11,7 @@ function LinkedInIcon({ className }: { className?: string }) {
   )
 }
 
-const EMAIL = 'rotich.collins96@gmail.com'
+const EMAIL = 'connect@crotich.com'
 const LINKEDIN = 'https://www.linkedin.com/in/crotich/'
 
 const NAV_ITEMS = [

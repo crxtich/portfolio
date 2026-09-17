@@ -1,8 +1,8 @@
+import { useEffect, useRef, useState } from 'react'
 import { Mail, ExternalLink, ArrowUpRight } from 'lucide-react'
 import ThemeToggle from './components/ThemeToggle'
 
-// lucide-react doesn't ship brand icons — same inline mark used on
-// nse-tracker.crotich.com, kept pixel-for-pixel identical for consistency.
+// lucide-react doesn't ship brand icons.
 function LinkedInIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor">
@@ -14,11 +14,12 @@ function LinkedInIcon({ className }: { className?: string }) {
 const EMAIL = 'connect@crotich.com'
 const LINKEDIN = 'https://www.linkedin.com/in/crotich/'
 
-const NAV_ITEMS = [
-  { href: '#about', label: 'About' },
-  { href: '#experience', label: 'Experience' },
-  { href: '#projects', label: 'Projects' },
-  { href: '#contact', label: 'Contact' },
+const SECTIONS = [
+  { id: 'about', label: 'About' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'education', label: 'Education' },
+  { id: 'contact', label: 'Contact' },
 ]
 
 interface ExperienceRole {
@@ -100,7 +101,15 @@ const EDUCATION = [
   { school: 'Strathmore School', credential: 'High School Diploma', period: '2010 – 2014' },
 ]
 
-const SKILLS = ['Database Analysis', 'Loyalty Marketing', 'Market Research', 'Customer Data Analytics', 'CVM & Campaign Management', 'Business Intelligence Dashboards (Looker, Tableau)', 'SOP & Process Design']
+const SKILLS = [
+  'Database Analysis',
+  'Loyalty Marketing',
+  'Market Research',
+  'Customer Data Analytics',
+  'CVM & Campaign Management',
+  'Business Intelligence Dashboards (Looker, Tableau)',
+  'SOP & Process Design',
+]
 
 const CERTIFICATIONS = [
   'Business Analysis Foundations',
@@ -110,74 +119,121 @@ const CERTIFICATIONS = [
   'Getting Started with Microsoft Excel',
 ]
 
-function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
+function num(i: number) {
+  return String(i + 1).padStart(2, '0')
+}
+
+function SectionEyebrow({ index, label }: { index: number; label: string }) {
   return (
-    <div className="mb-8">
-      <div className="text-xs font-semibold uppercase tracking-widest text-accent">{eyebrow}</div>
-      <h2 className="mt-1 font-display text-2xl font-semibold text-ink sm:text-3xl">{title}</h2>
+    <div className="mb-8 flex items-baseline gap-3">
+      <span className="font-mono text-xs text-accent">{num(index)}</span>
+      <h2 className="font-display text-2xl font-medium text-ink sm:text-3xl">{label}</h2>
     </div>
   )
 }
 
-export default function App() {
+/** Sticky left index rail — the "ledger" of the page. Collapses to a top bar on mobile. */
+function IndexRail({ active }: { active: string }) {
   return (
-    <div className="min-h-screen bg-canvas">
-      <header className="sticky top-0 z-20 border-b border-canvas-border bg-canvas/90 backdrop-blur">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <a href="#top" className="font-display text-[15px] font-semibold tracking-tight text-ink">
-            Collins Rotich
-          </a>
-          <nav className="flex items-center gap-4">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="hidden text-sm text-ink-muted transition-colors hover:text-ink sm:inline"
-              >
-                {item.label}
-              </a>
-            ))}
-            <ThemeToggle />
-          </nav>
+    <aside className="border-b border-canvas-border px-4 py-4 sm:sticky sm:top-0 sm:h-screen sm:w-[220px] sm:shrink-0 sm:border-b-0 sm:border-r sm:px-6 sm:py-10">
+      <div className="flex items-center justify-between sm:block">
+        <a href="#top" className="font-display text-lg font-medium text-ink">
+          C. Rotich
+        </a>
+        <div className="sm:hidden">
+          <ThemeToggle />
         </div>
-      </header>
+      </div>
 
-      <main id="top" className="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
+      <nav className="mt-0 flex flex-wrap gap-x-5 gap-y-2 sm:mt-10 sm:flex-col sm:gap-2">
+        {SECTIONS.map((s, i) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className={`flex items-baseline gap-2 text-xs transition-colors sm:text-[13px] ${
+              active === s.id ? 'font-medium text-ink' : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            <span className="font-mono text-accent">{num(i)}</span>
+            {s.label}
+          </a>
+        ))}
+      </nav>
+
+      <div className="mt-10 hidden text-[11px] uppercase tracking-wide text-ink-muted sm:block">
+        Nairobi, Kenya
+      </div>
+      <div className="mt-6 hidden sm:block">
+        <ThemeToggle />
+      </div>
+    </aside>
+  )
+}
+
+export default function App() {
+  const [active, setActive] = useState('about')
+  const sectionsRef = useRef<Record<string, HTMLElement | null>>({})
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id)
+        }
+      },
+      { rootMargin: '-20% 0px -70% 0px' },
+    )
+    for (const s of SECTIONS) {
+      const el = sectionsRef.current[s.id]
+      if (el) observer.observe(el)
+    }
+    return () => observer.disconnect()
+  }, [])
+
+  const register = (id: string) => (el: HTMLElement | null) => {
+    sectionsRef.current[id] = el
+  }
+
+  return (
+    <div id="top" className="min-h-screen bg-canvas sm:flex">
+      <IndexRail active={active} />
+
+      <main className="mx-auto max-w-2xl px-4 py-14 sm:mx-0 sm:px-14 sm:py-20">
         {/* Hero */}
         <section className="animate-fadein">
-          <p className="text-sm font-medium text-ink-muted">Nairobi County, Kenya</p>
-          <h1 className="mt-2 font-display text-3xl font-semibold leading-tight text-ink sm:text-5xl">
-            Loyalty strategy, campaign management, and customer data analytics.
+          <p className="text-xs uppercase tracking-wide text-ink-muted">Loyalty &amp; Insights</p>
+          <h1 className="mt-3 max-w-md font-display text-3xl font-medium leading-[1.15] text-ink sm:text-[2.6rem]">
+            Data into strategies that keep customers coming back.
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">
+          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-ink-muted">
             Loyalty &amp; Insights Manager with five-plus years turning customer data into strategies that
-            drive retention, revenue, and long-term brand relationships across East Africa. Also a part-time
-            poet.
+            drive retention, revenue, and long-term brand relationships across East Africa. Also a
+            part-time poet.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-wrap gap-2.5">
             <a
               href={`mailto:${EMAIL}`}
-              className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2 text-[13px] font-medium text-canvas transition-opacity hover:opacity-85"
             >
-              <Mail className="h-4 w-4" strokeWidth={2} />
+              <Mail className="h-3.5 w-3.5" strokeWidth={2} />
               Email me
             </a>
             <a
               href={LINKEDIN}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-md border border-canvas-border px-4 py-2 text-sm font-medium text-ink-muted transition-colors hover:border-accent/50 hover:text-accent"
+              className="inline-flex items-center gap-2 border border-ink px-4 py-2 text-[13px] font-medium text-ink transition-colors hover:border-accent hover:text-accent"
             >
-              <LinkedInIcon className="h-4 w-4" />
+              <LinkedInIcon className="h-3.5 w-3.5" />
               LinkedIn
             </a>
           </div>
         </section>
 
         {/* About */}
-        <section id="about" className="mt-20">
-          <SectionHeading eyebrow="About" title="What I do" />
-          <div className="space-y-4 text-sm leading-relaxed text-ink-muted sm:text-base">
+        <section id="about" ref={register('about')} className="mt-20">
+          <SectionEyebrow index={0} label="About" />
+          <div className="max-w-md space-y-4 text-[14.5px] leading-relaxed text-ink-muted">
             <p>
               I specialise in building loyalty programmes and translating complex customer data into
               strategies that drive retention, revenue, and long-term brand relationships. I've led CVM
@@ -193,26 +249,22 @@ export default function App() {
             </p>
           </div>
 
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2">
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Top Skills</h3>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <h3 className="font-mono text-[11px] uppercase tracking-wide text-ink-muted">Top skills</h3>
+              <ul className="mt-3 space-y-1.5 text-sm text-ink">
                 {SKILLS.map((skill) => (
-                  <span
-                    key={skill}
-                    className="rounded-full border border-canvas-border bg-canvas-panel px-3 py-1 text-xs text-ink-muted"
-                  >
+                  <li key={skill} className="border-b border-canvas-border/70 pb-1.5">
                     {skill}
-                  </span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Certifications</h3>
-              <ul className="mt-3 space-y-1.5 text-sm text-ink-muted">
+              <h3 className="font-mono text-[11px] uppercase tracking-wide text-ink-muted">Certifications</h3>
+              <ul className="mt-3 space-y-1.5 text-sm text-ink">
                 {CERTIFICATIONS.map((cert) => (
-                  <li key={cert} className="flex items-start gap-2">
-                    <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-ink-faint" />
+                  <li key={cert} className="border-b border-canvas-border/70 pb-1.5">
                     {cert}
                   </li>
                 ))}
@@ -222,27 +274,27 @@ export default function App() {
         </section>
 
         {/* Experience */}
-        <section id="experience" className="mt-20">
-          <SectionHeading eyebrow="Career" title="Experience" />
-          <div className="space-y-10">
+        <section id="experience" ref={register('experience')} className="mt-20">
+          <SectionEyebrow index={1} label="Experience" />
+          <div>
             {EXPERIENCE.map((entry) => (
-              <div key={entry.company} className="rounded-lg border border-canvas-border bg-canvas-panel p-5">
+              <div key={entry.company} className="border-t border-canvas-border py-6 first:border-t-0 first:pt-0">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h3 className="font-display text-lg font-semibold text-ink">{entry.company}</h3>
-                  <span className="text-xs text-ink-faint">{entry.location}</span>
+                  <h3 className="font-display text-lg font-medium text-ink">{entry.company}</h3>
+                  <span className="font-mono text-[11px] text-ink-faint">{entry.location}</span>
                 </div>
-                <div className="mt-3 space-y-2.5">
+                <div className="mt-2.5 space-y-1.5">
                   {entry.roles.map((role) => (
                     <div key={role.title} className="flex flex-wrap items-baseline justify-between gap-2">
-                      <span className="text-sm font-medium text-accent">{role.title}</span>
-                      <span className="text-xs text-ink-faint">{role.period}</span>
+                      <span className="text-sm font-medium text-ink">{role.title}</span>
+                      <span className="font-mono text-[11px] text-ink-faint">{role.period}</span>
                     </div>
                   ))}
                 </div>
                 <ul className="mt-4 space-y-1.5 text-sm leading-relaxed text-ink-muted">
                   {entry.bullets.map((bullet) => (
                     <li key={bullet} className="flex items-start gap-2">
-                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-ink-faint" />
+                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
                       {bullet}
                     </li>
                   ))}
@@ -253,18 +305,13 @@ export default function App() {
         </section>
 
         {/* Projects */}
-        <section id="projects" className="mt-20">
-          <SectionHeading eyebrow="Side project" title="Projects" />
-          <a
-            href="https://nse-tracker.crotich.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block rounded-lg border border-canvas-border bg-canvas-panel p-5 transition-colors hover:border-accent/50"
-          >
+        <section id="projects" ref={register('projects')} className="mt-20">
+          <SectionEyebrow index={2} label="Projects" />
+          <a href="https://nse-tracker.crotich.com/" target="_blank" rel="noopener noreferrer" className="group block border-t border-canvas-border py-6">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="font-display text-lg font-semibold text-ink">NSE Market Intelligence</h3>
-                <p className="mt-1 text-sm text-ink-muted">
+                <h3 className="font-display text-lg font-medium text-ink">NSE Market Intelligence</h3>
+                <p className="mt-1.5 max-w-md text-sm text-ink-muted">
                   A live market-intelligence tracker for the Nairobi Securities Exchange — automated price
                   scraping, a quantitative signal-scoring engine, and a newsletter system, built end-to-end
                   including the data pipeline, backend, and frontend.
@@ -272,60 +319,58 @@ export default function App() {
               </div>
               <ArrowUpRight className="h-5 w-5 shrink-0 text-ink-faint transition-colors group-hover:text-accent" strokeWidth={2} />
             </div>
-            <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-accent">
+            <div className="mt-3 inline-flex items-center gap-1.5 font-mono text-xs text-accent">
               nse-tracker.crotich.com <ExternalLink className="h-3 w-3" strokeWidth={2} />
             </div>
           </a>
         </section>
 
         {/* Education */}
-        <section className="mt-20">
-          <SectionHeading eyebrow="Background" title="Education" />
-          <div className="space-y-4">
+        <section id="education" ref={register('education')} className="mt-20">
+          <SectionEyebrow index={3} label="Education" />
+          <div>
             {EDUCATION.map((ed) => (
-              <div key={ed.school} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-canvas-border/60 pb-3 last:border-0">
+              <div key={ed.school} className="flex flex-wrap items-baseline justify-between gap-2 border-t border-canvas-border py-3.5 first:border-t-0 first:pt-0">
                 <div>
                   <div className="text-sm font-medium text-ink">{ed.school}</div>
                   <div className="text-xs text-ink-muted">{ed.credential}</div>
                 </div>
-                <span className="text-xs text-ink-faint">{ed.period}</span>
+                <span className="font-mono text-[11px] text-ink-faint">{ed.period}</span>
               </div>
             ))}
           </div>
         </section>
 
         {/* Contact */}
-        <section id="contact" className="mt-20 rounded-lg border border-canvas-border bg-canvas-panel p-6 text-center">
-          <h2 className="font-display text-2xl font-semibold text-ink">Let's talk</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-ink-muted">
+        <section id="contact" ref={register('contact')} className="mt-20 border-t border-canvas-border pt-10">
+          <SectionEyebrow index={4} label="Let's talk" />
+          <p className="max-w-md text-[14.5px] leading-relaxed text-ink-muted">
             Open to conversations on loyalty strategy, customer analytics, or anything data-and-CX shaped.
           </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-3">
+          <div className="mt-6 flex flex-wrap gap-2.5">
             <a
               href={`mailto:${EMAIL}`}
-              className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2 text-[13px] font-medium text-canvas transition-opacity hover:opacity-85"
             >
-              <Mail className="h-4 w-4" strokeWidth={2} />
+              <Mail className="h-3.5 w-3.5" strokeWidth={2} />
               {EMAIL}
             </a>
             <a
               href={LINKEDIN}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-md border border-canvas-border px-4 py-2 text-sm font-medium text-ink-muted transition-colors hover:border-accent/50 hover:text-accent"
+              className="inline-flex items-center gap-2 border border-ink px-4 py-2 text-[13px] font-medium text-ink transition-colors hover:border-accent hover:text-accent"
             >
-              <LinkedInIcon className="h-4 w-4" />
+              <LinkedInIcon className="h-3.5 w-3.5" />
               linkedin.com/in/crotich
             </a>
           </div>
         </section>
-      </main>
 
-      <footer className="border-t border-canvas-border">
-        <div className="mx-auto max-w-4xl px-4 py-8 text-center text-xs text-ink-faint sm:px-6">
+        <footer className="mt-20 border-t border-canvas-border pt-6 pb-4 text-xs text-ink-faint">
           © {new Date().getFullYear()} Collins Rotich
-        </div>
-      </footer>
+        </footer>
+      </main>
     </div>
   )
 }

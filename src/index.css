@@ -3,36 +3,37 @@
 @tailwind utilities;
 
 @layer base {
-  /* Light palette (default) — see nse-tracker.crotich.com's index.css for
-     the sibling site sharing this exact token system. */
+  /* "Ledger" palette — warm paper light mode, warm charcoal dark mode.
+     Oxblood accent in light mode shifts to a warmer ember in dark mode
+     since oxblood reads muddy against a dark ground. */
   :root {
-    --color-canvas: 247 248 250;
-    --color-canvas-raised: 255 255 255;
-    --color-canvas-panel: 255 255 255;
-    --color-canvas-border: 227 230 235;
+    --color-canvas: 247 244 236;
+    --color-canvas-raised: 250 248 241;
+    --color-canvas-panel: 242 238 227;
+    --color-canvas-border: 220 213 196;
 
-    --color-ink: 18 21 26;
-    --color-ink-muted: 91 100 114;
-    --color-ink-faint: 139 147 161;
+    --color-ink: 34 31 26;
+    --color-ink-muted: 122 115 101;
+    --color-ink-faint: 168 160 143;
 
-    --color-accent: 181 121 30;
-    --color-accent-bright: 240 169 58;
+    --color-accent: 110 42 42;
+    --color-accent-bright: 140 58 58;
 
     color-scheme: light;
   }
 
   .dark {
-    --color-canvas: 11 13 16;
-    --color-canvas-raised: 18 21 26;
-    --color-canvas-panel: 22 26 32;
-    --color-canvas-border: 36 42 50;
+    --color-canvas: 21 19 15;
+    --color-canvas-raised: 26 24 19;
+    --color-canvas-panel: 30 28 22;
+    --color-canvas-border: 43 40 32;
 
-    --color-ink: 245 247 250;
-    --color-ink-muted: 139 147 161;
-    --color-ink-faint: 86 94 107;
+    --color-ink: 242 238 230;
+    --color-ink-muted: 156 152 138;
+    --color-ink-faint: 110 106 95;
 
-    --color-accent: 240 169 58;
-    --color-accent-bright: 255 194 102;
+    --color-accent: 201 148 79;
+    --color-accent-bright: 224 175 111;
 
     color-scheme: dark;
   }

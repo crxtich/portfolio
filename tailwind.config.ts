@@ -1,8 +1,8 @@
 import type { Config } from 'tailwindcss'
 
-// Same token approach as nse-tracker.crotich.com: colors resolve to CSS
-// custom properties (per-theme "R G B" triplets in src/index.css) so every
-// bg-canvas/text-ink/etc. utility repaints for light vs dark automatically.
+// "Ledger" design system. Colors resolve to CSS custom properties (per-theme
+// "R G B" triplets in src/index.css) so every bg-canvas/text-ink/etc. utility
+// repaints for light vs dark automatically.
 function withOpacity(variable: string) {
   return `rgb(var(${variable}) / <alpha-value>)`
 }
@@ -27,14 +27,12 @@ export default {
         accent: {
           DEFAULT: withOpacity('--color-accent'),
           bright: withOpacity('--color-accent-bright'),
-          // Fixed, not theme-variable — text on a bg-accent button/chip
-          // needs to stay dark regardless of overall theme.
-          ink: '#0B0D10',
         },
       },
       fontFamily: {
-        sans: ['ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['ui-serif', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
+        sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Fraunces"', 'ui-serif', 'Georgia', 'serif'],
+        mono: ['"Space Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       keyframes: {
         fadein: {
